@@ -35,5 +35,5 @@ install: all
 check:
 
 diistclean:
-	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+	rm -f *.o *~ $(OBJS) $(SOBJS) lib/$(SWIARCH)/$(SOBJS)
 
