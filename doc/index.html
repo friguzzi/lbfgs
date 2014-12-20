@@ -2,7 +2,7 @@
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head profile="http://www.w3.org/2005/10/profile">
-    <title>YAP-LBFGS</title>
+    <title>SWIPL-LBFGS</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
     <meta http-equiv="language" content="english,en" />
     <meta name="robots" content="index,follow" />
@@ -11,38 +11,25 @@
  </head>
   <body>
 
-<h1>YAP-LBFGS</h1>
+<h1>SWIPL-LBFGS</h1>
 
-<h2>What is YAP-LBFGS</h2>
-<p>YAP-LBFGS is an interface to call <a href="http://www.chokkan.org/software/liblbfgs/">libLBFGS</a> from within
-YAP. libLBFGS is a C library for Limited-memory
+<h2>What is SWIPL-LBFGS</h2>
+<p>SWIPL-LBFGS is an interface to call <a href="http://www.chokkan.org/software/liblbfgs/">libLBFGS</a> from within
+SWI-Prolog. libLBFGS is a C library for Limited-memory
 Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) solving the under-constrained
 minimization problem:</p>
 <p> minimize <span class="math">F(X), X=(x1,x2,..., xN)</span></p>
-<p><a href="http://www.dcc.fc.up.pt/~vsc/Yap/">YAP</a> (Yet Another
-Prolog) is a Prolog interpreter</p>
 <h2>Contact</h2>
-<p>YAP-LBFGS has been developed by Bernd Gutmann (<a
+<p>SWIPL-LBFGS is a porting of YAP-LBFGS. YAP-LBFGS was  developed by Bernd Gutmann (<a
 href="http://www.cs.kuleuven.be/cgi-bin/e-post.pl?epost=bernd.gutmann">email</a>,
-<a href="http://www.cs.kuleuven.be/~bernd/">homepage</a>). In case you publish something using YAP-LBFGS, please give credit to me and to libLBFGS. And if you find YAP-LBFGS useful, or if you find a bug, or if you
-port it to another system, ... please send me an email.</p>
-
-<h2>Download</h2>
-<p>Latest version (25.04.2009) <a href="yap-lbfgs.tgz">yap-lbfgs.tgz</a></p>
+<a href="http://www.cs.kuleuven.be/~bernd/">homepage</a>). In case you publish something using YAP-LBFGS, please give credit to Bernd and to libLBFGS. And if you find YAP-LBFGS useful, or if you find a bug, or if you
+port it to another system, ... please send Bernd an email.</p>
+<p> YAP-LBFGS was ported to SWIProlog by Fabrizio Riguzzi (<a href="http://ds.ing.unife.it/~friguzzi/">homepage</a>
 
 <h2>Installation</h2>
-<p>Note: The Make file is currently only working under Mac OS, but with little
-effort it is possible to adapt it to your needs.<br />
-And in case you are a C expert and can produce a better/more general Make file, please let me know.</p>
-<ol>
-  <li>Download and compile <a
-  href="http://www.chokkan.org/software/liblbfgs/">libLBFGS</a>.</li>
-  <li>Download and unpack YAP-LBFGS</li>
-  <li>Edit the Makefile of
-YAP-LBFGS and change the line <span class="code">LIBS= ../lib/lbfgs.o</span> to wherever the
-lbfgs.o file can be found.</li>
-  <li>Execute Make in the YAP-LBFGS folder</li>
-  <li>Run <span class="code">yap -l ex1.pl</span> and run the query
+<p> use 
+ <span class="code">pack_install(lbfgs)</span>
+  <li>Run <span class="code">swipl  ex1.pl</span> and run the query
   <span class="code">:-demo.</span> to see whether everything works fine.</li>
 </ol>
 
