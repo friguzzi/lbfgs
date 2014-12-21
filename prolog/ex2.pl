@@ -47,8 +47,8 @@ demo :-
 	optimizer_initialize(2,evaluate,progress),
 
 
-	StartX0 is random*1000-500,
-	StartX1 is random*1000-500,
+	StartX0 is random_float*1000-500,
+	StartX1 is random_float*1000-500,
 
 	format('We start the search at the random position (x0,x1)=(~5f,~5f)~2n',[StartX0,StartX1]),
 	optimizer_set_x(0,StartX0),
