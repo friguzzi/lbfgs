@@ -30,7 +30,7 @@ swi_lbfgs.so: swi_lbfgs.o lbfgs.o
 	gcc -shared -export-dynamic $(LDFLAGS) -o swi_lbfgs.so swi_lbfgs.o lbfgs.o  
 
 install: all
-	cp $(SOBJS) lib/$(SWIARCH)
+	install $(SOBJS) lib/$(SWIARCH)
 
 check:
 
