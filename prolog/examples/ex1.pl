@@ -17,7 +17,7 @@
 %  You should have received a copy of the GNU General Public License
 %  along with YAP-LBFGS.  If not, see <http://www.gnu.org/licenses/>.
 
-:- use_module(lbfgs).
+:- use_module(library(lbfgs)).
 
 
 % This is the call back function which evaluates F and the gradient of F
