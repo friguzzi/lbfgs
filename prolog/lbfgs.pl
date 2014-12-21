@@ -39,7 +39,7 @@
 
 :- dynamic initialized/0.
 
-:-use_foreign_library(foreign(swi_lbfgs),'init_lbfgs_predicates').
+:-use_foreign_library(foreign(swi_lbfgs),init_lbfgs_predicates).
 
 
 optimizer_initialize(N,Call_Evaluate,Call_Progress) :-
