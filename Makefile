@@ -1,7 +1,7 @@
 #
 CC=gcc
 CFLAGSLBFGS= $(CFLAGS) -shared -fPIC -DBP_FREE -O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes -g -O2  -I$(srcdir)/liblbfgs-1.10/include 
-LDFLAGS= $(LDSOFLAGS) -rdynamic   -Wl,--enable-new-dtags  -Wl,-R$(LIBDIR)
+LDFLAGS= $(LDSOFLAGS) -rdynamic   -Wl,--enable-new-dtags 
 #
 #
 # You shouldn't need to change what follows.
@@ -27,7 +27,7 @@ lbfgs.o: $(srcdir)/liblbfgs-1.10/lib/lbfgs.c
 	$(CC) -c $(CFLAGSLBFGS) -I $(srcdir)/liblbfgs-1.10/lib $(srcdir)/liblbfgs-1.10/lib/lbfgs.c -o lbfgs.o
 
 swi_lbfgs.so: swi_lbfgs.o lbfgs.o
-	gcc -shared -export-dynamic $(LDFLAGS) -o swi_lbfgs.so swi_lbfgs.o lbfgs.o  -Wl,-R,$(LIBDIR)
+	gcc -shared -export-dynamic $(LDFLAGS) -o swi_lbfgs.so swi_lbfgs.o lbfgs.o  
 
 install: all
 	cp $(SOBJS) lib/$(SWIARCH)
