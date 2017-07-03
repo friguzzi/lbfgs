@@ -34,6 +34,7 @@ swi_lbfgs.$(SOEXT): swi_lbfgs.o lbfgs.o
   fi
 
 install: all
+	mkdir -p $(LIBDIR)
 	/usr/bin/install -c $(SOBJS) lib/$(SWIARCH)
 
 check:
