@@ -272,7 +272,7 @@ static foreign_t get_g_value(term_t t1,term_t t2) {
 }
 
 
-static foreign_t optimizer_initialize(term_t t1, term_t t2) {
+static foreign_t optimizer_initialize(term_t t1, term_t t2, term_t t3, term_t t4) {
   int temp_n=0;
  
 //printf("LBFGSERR_ROUNDING_ERROR %d\n",LBFGSERR_ROUNDING_ERROR);
@@ -302,8 +302,17 @@ static foreign_t optimizer_initialize(term_t t1, term_t t2) {
   
   PL_get_module(t2, &module);
   n=temp_n;
+  atom_t fcall3atom;
+  atom_t fprogress8atom;
+  PL_get_atom(t3, &fcall3atom);
+  PL_get_atom(t4, &fprogress8atom);
+  fcall3=PL_new_functor(fcall3atom,3);
+  fprogress8=PL_new_functor(fprogress8atom,8);
 
   optimizer_status=OPTIMIZER_STATUS_INITIALIZED;
+
+
+
 
   PL_succeed;
 }
@@ -598,10 +607,7 @@ static foreign_t optimizer_get_parameter(term_t t1, term_t t2) {
 
 install_t init_lbfgs_predicates( void ) 
 { 
-  atom_t fcall3atom=PL_new_atom("$lbfgs_callback_evaluate");
-  fcall3=PL_new_functor(fcall3atom,3);
-  atom_t fprogress8atom=PL_new_atom("$lbfgs_callback_progress");
-  fprogress8=PL_new_functor(fprogress8atom,8);
+ 
 //  fcall3 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_evaluate"), 3);
 //  fprogress8 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_progress"), 8);
 
@@ -609,7 +615,7 @@ install_t init_lbfgs_predicates( void )
   lbfgs_parameter_init(&param);
 
 
-  PL_register_foreign("optimizer_reserve_memory",2,optimizer_initialize,0);
+  PL_register_foreign("optimizer_reserve_memory",4,optimizer_initialize,0);
   PL_register_foreign("optimizer_run",2,optimizer_run,0);
   PL_register_foreign("optimizer_free_memory",0,optimizer_finalize,0);
 
