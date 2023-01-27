@@ -53,20 +53,19 @@ optimizer_initialize(N,Module,Call_Evaluate,Call_Progress) :-
 	N>0,
 
 	% check whether there are such call back functions
-	current_module(Module),
 	current_predicate(Module:Call_Evaluate/3),
 	current_predicate(Module:Call_Progress/8),
 
-	optimizer_reserve_memory(N),
+	optimizer_reserve_memory(N,Module),
 
 	% install call back predicates in the user module which call
 	% the predicates given by the arguments		
 	EvalGoal =.. [Call_Evaluate,E1,E2,E3],
 	ProgressGoal =.. [Call_Progress,P1,P2,P3,P4,P5,P6,P7,P8],
-	retractall( lbfgs:'$lbfgs_callback_evaluate'(_E1,_E2,_E3) ),
-	retractall( lbfgs:'$lbfgs_callback_progress'(_P1,_P2,_P3,_P4,_P5,_P6,_P7,_P8) ),
-	assert( (lbfgs:'$lbfgs_callback_evaluate'(E1,E2,E3) :- Module:EvalGoal, !) ),
-	assert( (lbfgs:'$lbfgs_callback_progress'(P1,P2,P3,P4,P5,P6,P7,P8) :- Module:ProgressGoal, !) ),
+	retractall( Module:'$lbfgs_callback_evaluate'(_E1,_E2,_E3) ),
+	retractall( Module:'$lbfgs_callback_progress'(_P1,_P2,_P3,_P4,_P5,_P6,_P7,_P8) ),
+	assert( (Module:'$lbfgs_callback_evaluate'(E1,E2,E3) :- Module:EvalGoal, !) ),
+	assert( (Module:'$lbfgs_callback_progress'(P1,P2,P3,P4,P5,P6,P7,P8) :- Module:ProgressGoal, !) ),
 	assert(initialized).
 
 optimizer_initialize(N,Module,Call_Evaluate,ArgsEv,Call_Progress,ArgsProg) :-

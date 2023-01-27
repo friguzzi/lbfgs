@@ -37,7 +37,7 @@ int n;                                        // the size of the parameter vecto
 lbfgsfloatval_t *x;                           // pointer to the parameter vector x[0],...,x[n-1]
 lbfgsfloatval_t *g;                           // pointer to the gradient vector g[0],...,g[n-1]
 lbfgs_parameter_t param;                      // the parameters used for lbfgs
-
+module_t module;
 functor_t fcall3, fprogress8;
 
 static lbfgsfloatval_t evaluate(
@@ -71,7 +71,7 @@ static lbfgsfloatval_t evaluate(
 
 //  s1 = YAP_InitSlot(call);
   optimizer_status=OPTIMIZER_STATUS_CB_EVAL;
-  result=PL_call(call,NULL);
+  result=PL_call(call,module);
 //  result=YAP_CallProlog(call);
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
 
@@ -137,7 +137,7 @@ static int progress(
 
 
   optimizer_status=OPTIMIZER_STATUS_CB_PROGRESS;
-  result=PL_call(call,NULL);
+  result=PL_call(call,module);
   optimizer_status=OPTIMIZER_STATUS_RUNNING;
 
 
@@ -272,7 +272,7 @@ static foreign_t get_g_value(term_t t1,term_t t2) {
 }
 
 
-static foreign_t optimizer_initialize(term_t t1) {
+static foreign_t optimizer_initialize(term_t t1, term_t t2) {
   int temp_n=0;
  
 //printf("LBFGSERR_ROUNDING_ERROR %d\n",LBFGSERR_ROUNDING_ERROR);
@@ -299,7 +299,8 @@ static foreign_t optimizer_initialize(term_t t1) {
         printf("ERROR: Failed to allocate a memory block for variables.\n");
         PL_fail;
   }
-
+  
+  PL_get_module(t2, &module);
   n=temp_n;
 
   optimizer_status=OPTIMIZER_STATUS_INITIALIZED;
@@ -608,7 +609,7 @@ install_t init_lbfgs_predicates( void )
   lbfgs_parameter_init(&param);
 
 
-  PL_register_foreign("optimizer_reserve_memory",1,optimizer_initialize,0);
+  PL_register_foreign("optimizer_reserve_memory",2,optimizer_initialize,0);
   PL_register_foreign("optimizer_run",2,optimizer_run,0);
   PL_register_foreign("optimizer_free_memory",0,optimizer_finalize,0);
 
