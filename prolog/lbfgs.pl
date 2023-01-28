@@ -42,9 +42,36 @@
 :-use_foreign_library(foreign(swi_lbfgs),init_lbfgs_predicates).
 
 
-optimizer_initialize(N,Call_Evaluate,Call_Progress,Env) :-
-	optimizer_initialize(N,user,Call_Evaluate,Call_Progress,[],Env).
-
+/**
+ * optimizer_initialize(+N,+Module,+Evaluate,+Progress,+ExtraArg,-Environment) is det
+ *
+ * Create space to optimize a function with N variables (N has to be integer). 
+ * Module is the name of the module where the call back predicates can be found, 
+ * Evaluate is the call back predicate (arity 5) to evaluate the function math F, 
+ * Progress is the call back predicate invoked (arity 10) after every iteration. 
+ * ExtraArg can be used to pass a term that will be further passed to Evaluate and 
+ * Progress in case these functions need extra information. Environment is returned by the
+ * predicate and is a pointer to a data structure storing the information regarding the current 
+ * optimization session. It must be used in further calls to the library predicates to operate on the session.
+ *
+ * Example optimizer_initialize(1,user,evaluate,progress,[],Env)
+ *
+ * The evaluate call back predicate has to be of the type evaluate(+Environment,-F,+N,+Step,+ExtraArg). It has to 
+ * calculate the current function value F. N is the size of the parameter vector (the value which was used to 
+ * initialize LBFGS) and Step is the current state of the line search. The call back predicate can access the 
+ * current values of x[i] by calling optimizer_get_x(+Environment,+I,-Xi). Finally, the call back 
+ * predicate has to calculate the gradient of F and set its value by calling optimizer_set_g(+Environment,+I,+Gi) 
+ * for every 1<=I<=N. Environment needs to be passed to further calls to the library predicates. 
+ * ExtraArg can be used to pass data to evaluate/5.
+ *
+ * The progress call back predicate has to be of the type 
+ * progress(+Environment,+F,+X_Norm,+G_Norm,+Step,+N,+Iteration,+LS,+Continue,+ExtraArg). 
+ * It is called after every iteration. The call back predicate can access the current values of X and of 
+ * the gradient by calling optimizer_get_x(+Environment,+I,-Xi) and optimizer_get_g(+Environment+I,-Gi) respectively. 
+ * Howver, it must not call the setter predicates for X or G. If it tries to do so, the optimizer will 
+ * terminate with an error. If Continue is set to 0 (int) the optimization process will continue for 
+ * one more iteration, any other value will terminate the optimization process.
+ */
 optimizer_initialize(N,Module,Call_Evaluate,Call_Progress,ExtraArg,Env) :-
 
 	integer(N),
@@ -59,9 +86,47 @@ optimizer_initialize(N,Module,Call_Evaluate,Call_Progress,ExtraArg,Env) :-
 	% the predicates given by the arguments		
 
 
+/**
+ * optimizer_initialize(+N,+Evaluate,+Progress,-Environment) is det
+ *
+ * Same as optimizer_initialize(+N,user,+Evaluate,+Progress,[],-Environment)
+ */
+optimizer_initialize(N,Call_Evaluate,Call_Progress,Env) :-
+	optimizer_initialize(N,user,Call_Evaluate,Call_Progress,[],Env).
+
+/**
+ * optimizer_finalize(+Environment) is det
+ * 
+ * Clean up the memory. Environment must take a value returned by a call to optimizer_initialize/4-6.
+ */
+
 optimizer_finalize(Env) :-
 	optimizer_free_memory(Env).
 
+/**
+ * optimizer_parameters(+Environment) is det
+ * 
+ * Prints a table with the current parameters. For example
+==========================================================================================
+Type      Name               Value          Description                   
+==========================================================================================
+int       m                  6              The number of corrections to approximate the inverse hessian matrix.
+float     epsilon            1e-05          Epsilon for convergence test. 
+int       past               0              Distance for delta-based convergence test.
+float     delta              1e-05          Delta for convergence test.   
+int       max_iterations     0              The maximum number of iterations
+int       linesearch         0              The line search algorithm.    
+int       max_linesearch     40             The maximum number of trials for the line search.
+float     min_step           1e-20          The minimum step of the line search routine.
+float     max_step           1e+20          The maximum step of the line search.
+float     ftol               0.0001         A parameter to control the accuracy of the line search routine.
+float     gtol               0.9            A parameter to control the accuracy of the line search routine.
+float     xtol               1e-16          The machine precision for floating-point values.
+float     orthantwise_c      0.0            Coefficient for the L1 norm of variables
+int       orthantwise_start  0              Start index for computing the L1 norm of the variables.
+int       orthantwise_end    -1             End index for computing the L1 norm of the variables.
+==========================================================================================
+ */
 optimizer_parameters(Env) :-
 	optimizer_get_parameter(Env,m,M),
 	optimizer_get_parameter(Env,epsilon,Epsilon),
@@ -123,3 +188,53 @@ interpret_return_value(N,M):-
 			"LBFGSERR_MINIMUMSTEP", "LBFGSERR_MAXIMUMSTEP", "LBFGSERR_MAXIMUMLINESEARCH", "LBFGSERR_MAXIMUMITERATION",
 			"LBFGSERR_WIDTHTOOSMALL", "LBFGSERR_INVALIDPARAMETERS", "LBFGSERR_INCREASEGRADIENT"], M).
 	
+
+/**
+ * optimizer_run(+Environment,-F,-Status) is det
+ * 
+ * Runs the optimization, Environment must be a value returned by optimizer_initialize/4-6. 
+ * F is the best (minimal) function value and Status (int) is the status code returned by libLBFGS. 
+ * Anything except 0 indicates an error, see the documentation of libLBFGS for the meaning.
+ */
+
+/**
+ * optimizer_get_x(+Environment,+I,-X) is det
+ * 
+ * Get the current value for x[I]. Only possible when the optimizer is initialized or running. 
+ * Environment must take a value returned by a call to optimizer_initialize/4-6.
+ */
+
+/**
+ * optimizer_set_x(+Environment,+I,+X) is det
+ * 
+ * Set the current value for x[I]. Only possible when the optimizer is initialized but not running. 
+ * Environment must take a value returned by a call to optimizer_initialize/4-6.
+ */
+
+/**
+ * optimizer_get_g(*Environment,+I,-G) is det
+ * 
+ * Get the current value for g[I] (the partial derivative of F with respect to x[I]). 
+ * Only possible when the optimizer is initialized or running. 
+ * Environment must take a value returned by a call to optimizer_initialize/4-6.
+ */
+
+/**
+ * optimizer_set_g(+Environment,+I,+G) is det
+ * 
+ * Set the current value for g[I] (the partial derivative of F with respect to x[I]). 
+ * Can only be called from the evaluate call back predicate. 
+ * Environment must take the value that is passed to the evaluate predicate.
+ */
+
+/**
+ *  optimizer_set_paramater(+Env,+Name,+Value) is det
+ * 
+ *  Change parameters
+ */
+
+/**
+ * optimizer_get_parameter(+Env,-Name,-Value) 
+ * 
+ * See current parameters
+ */
