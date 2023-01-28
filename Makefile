@@ -1,6 +1,6 @@
 #
 CC=gcc
-CFLAGSLBFGS= $(CFLAGS) -shared -fPIC -DBP_FREE -O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes -g -O2  -I$(srcdir)/liblbfgs-1.10/include
+CFLAGSLBFGS= $(CFLAGS) -fPIC -DBP_FREE -O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes -g -O2  -I$(srcdir)/liblbfgs-1.10/include
 LIBDIR=lib/$(SWIARCH)/
 LDFLAGS= $(LDSOFLAGS) -rdynamic   -Wl,--enable-new-dtags 
 LDFLAGSMAC= $(LDSOFLAGS) -rdynamic -lswipl

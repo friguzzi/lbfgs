@@ -18,20 +18,20 @@
 
 
 
-:- module(lbfgs,[optimizer_initialize/3,
-		 optimizer_initialize/5,
-		 optimizer_run/2,
-		 optimizer_get_x/2,
-		 optimizer_set_x/2,
+:- module(lbfgs,[optimizer_initialize/4,
+		 optimizer_initialize/6,
+		 optimizer_run/3,
+		 optimizer_get_x/3,
+		 optimizer_set_x/3,
 
-		 optimizer_get_g/2,
-		 optimizer_set_g/2,
+		 optimizer_get_g/3,
+		 optimizer_set_g/3,
 
-		 optimizer_finalize/0,
+		 optimizer_finalize/1,
 
-		 optimizer_set_parameter/2,
-		 optimizer_get_parameter/2,
-		 optimizer_parameters/0,
+		 optimizer_set_parameter/3,
+		 optimizer_get_parameter/3,
+		 optimizer_parameters/1,
 		 interpret_return_value/2]).
 
 % switch on all the checks to reduce bug searching time
@@ -43,49 +43,46 @@
 :-use_foreign_library(foreign(swi_lbfgs),init_lbfgs_predicates).
 
 
-optimizer_initialize(N,Call_Evaluate,Call_Progress) :-
-	optimizer_initialize(N,user,Call_Evaluate,Call_Progress,[]).
+optimizer_initialize(N,Call_Evaluate,Call_Progress,Env) :-
+	optimizer_initialize(N,user,Call_Evaluate,Call_Progress,[],Env).
 
-optimizer_initialize(N,Module,Call_Evaluate,Call_Progress,ExtraArg) :-
+optimizer_initialize(N,Module,Call_Evaluate,Call_Progress,ExtraArg,Env) :-
 	\+ initialized,
 
 	integer(N),
 	N>0,
 
 	% check whether there are such call back functions
-	current_predicate(Module:Call_Evaluate/4),
-	current_predicate(Module:Call_Progress/9),
+	current_predicate(Module:Call_Evaluate/5),
+	current_predicate(Module:Call_Progress/10),
 
-	optimizer_reserve_memory(N,Module,Call_Evaluate,Call_Progress,ExtraArg),
-
+	optimizer_reserve_memory(N,Module,Call_Evaluate,Call_Progress,ExtraArg,Env),
 	% install call back predicates in the user module which call
 	% the predicates given by the arguments		
 	assert(initialized).
 
 
-optimizer_finalize :-
+optimizer_finalize(Env) :-
 	initialized,
-	optimizer_free_memory,
-	retractall(lbfgs:'$lbfgs_callback_evaluate'(_,_,_)),
-	retractall(lbfgs:'$lbfgs_callback_progress'(_,_,_,_,_,_,_,_)),
+	optimizer_free_memory(Env),
 	retractall(initialized).
 
-optimizer_parameters :-
-	optimizer_get_parameter(m,M),
-	optimizer_get_parameter(epsilon,Epsilon),
-	optimizer_get_parameter(past,Past),
-	optimizer_get_parameter(delta,Delta),
-	optimizer_get_parameter(max_iterations,Max_Iterations),
-	optimizer_get_parameter(linesearch,Linesearch),
-	optimizer_get_parameter(max_linesearch,Max_Linesearch),
-	optimizer_get_parameter(min_step,Min_Step),
-	optimizer_get_parameter(max_step,Max_Step),
-	optimizer_get_parameter(ftol,Ftol),
-	optimizer_get_parameter(gtol,Gtol),
-	optimizer_get_parameter(xtol,Xtol),
-	optimizer_get_parameter(orthantwise_c,Orthantwise_C),
-	optimizer_get_parameter(orthantwise_start,Orthantwise_Start),
-	optimizer_get_parameter(orthantwise_end,Orthantwise_End),
+optimizer_parameters(Env) :-
+	optimizer_get_parameter(Env,m,M),
+	optimizer_get_parameter(Env,epsilon,Epsilon),
+	optimizer_get_parameter(Env,past,Past),
+	optimizer_get_parameter(Env,delta,Delta),
+	optimizer_get_parameter(Env,max_iterations,Max_Iterations),
+	optimizer_get_parameter(Env,linesearch,Linesearch),
+	optimizer_get_parameter(Env,max_linesearch,Max_Linesearch),
+	optimizer_get_parameter(Env,min_step,Min_Step),
+	optimizer_get_parameter(Env,max_step,Max_Step),
+	optimizer_get_parameter(Env,ftol,Ftol),
+	optimizer_get_parameter(Env,gtol,Gtol),
+	optimizer_get_parameter(Env,xtol,Xtol),
+	optimizer_get_parameter(Env,orthantwise_c,Orthantwise_C),
+	optimizer_get_parameter(Env,orthantwise_start,Orthantwise_Start),
+	optimizer_get_parameter(Env,orthantwise_end,Orthantwise_End),
 
 	format('/******************************************************************************************~n',[]),
 	print_param('Name','Value','Description','Type'),
