@@ -38,7 +38,6 @@
 % :- yap_flag(unknown,error).
 % :- style_check(single_var).
 
-:- dynamic initialized/0.
 
 :-use_foreign_library(foreign(swi_lbfgs),init_lbfgs_predicates).
 
@@ -47,7 +46,6 @@ optimizer_initialize(N,Call_Evaluate,Call_Progress,Env) :-
 	optimizer_initialize(N,user,Call_Evaluate,Call_Progress,[],Env).
 
 optimizer_initialize(N,Module,Call_Evaluate,Call_Progress,ExtraArg,Env) :-
-	\+ initialized,
 
 	integer(N),
 	N>0,
@@ -56,16 +54,13 @@ optimizer_initialize(N,Module,Call_Evaluate,Call_Progress,ExtraArg,Env) :-
 	current_predicate(Module:Call_Evaluate/5),
 	current_predicate(Module:Call_Progress/10),
 
-	optimizer_reserve_memory(N,Module,Call_Evaluate,Call_Progress,ExtraArg,Env),
+	optimizer_reserve_memory(N,Module,Call_Evaluate,Call_Progress,ExtraArg,Env).
 	% install call back predicates in the user module which call
 	% the predicates given by the arguments		
-	assert(initialized).
 
 
 optimizer_finalize(Env) :-
-	initialized,
-	optimizer_free_memory(Env),
-	retractall(initialized).
+	optimizer_free_memory(Env).
 
 optimizer_parameters(Env) :-
 	optimizer_get_parameter(Env,m,M),
