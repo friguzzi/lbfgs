@@ -39,6 +39,7 @@ lbfgsfloatval_t *g;                           // pointer to the gradient vector 
 lbfgs_parameter_t param;                      // the parameters used for lbfgs
 module_t module;
 functor_t fcall3, fprogress8;
+record_t extra_arg;
 
 static lbfgsfloatval_t evaluate(
     void *instance,
@@ -66,7 +67,12 @@ static lbfgsfloatval_t evaluate(
   PL_put_variable(var);
   PL_put_integer(nterm,n);
   PL_put_float(stepterm,step);
-  PL_cons_functor(call,fcall3,var,nterm,stepterm);
+  term_t extra_arg_term=PL_new_term_ref();
+
+  PL_recorded(extra_arg,extra_arg_term);
+
+//  PL_put_term_from_chars(extra_arg,REP_UTF8,(size_t)-1,"plunit_bongard");
+  PL_cons_functor(call,fcall3,var,nterm,stepterm,extra_arg_term);
   g=g_tmp;  
 
 //  s1 = YAP_InitSlot(call);
@@ -132,8 +138,18 @@ static int progress(
   PL_put_integer(kterm,k);
   PL_put_integer(lsterm,ls);
   PL_put_variable(var);
+
+  term_t extra_arg_term=PL_new_term_ref();
+
+  PL_recorded(extra_arg,extra_arg_term);
+
+//    extra_arg=PL_new_term_ref();
+
+//  PL_put_term_from_chars(extra_arg,REP_UTF8,(size_t)-1,"plunit_bongard");
+
+
   PL_cons_functor(call,fprogress8,fxterm,xnormterm,gnormterm,stepterm,
-  nterm,kterm,lsterm,var);
+  nterm,kterm,lsterm,var,extra_arg_term);
 
 
   optimizer_status=OPTIMIZER_STATUS_CB_PROGRESS;
@@ -272,7 +288,7 @@ static foreign_t get_g_value(term_t t1,term_t t2) {
 }
 
 
-static foreign_t optimizer_initialize(term_t t1, term_t t2, term_t t3, term_t t4) {
+static foreign_t optimizer_initialize(term_t t1, term_t t2, term_t t3, term_t t4, term_t t5) {
   int temp_n=0;
  
 //printf("LBFGSERR_ROUNDING_ERROR %d\n",LBFGSERR_ROUNDING_ERROR);
@@ -306,8 +322,9 @@ static foreign_t optimizer_initialize(term_t t1, term_t t2, term_t t3, term_t t4
   atom_t fprogress8atom;
   PL_get_atom(t3, &fcall3atom);
   PL_get_atom(t4, &fprogress8atom);
-  fcall3=PL_new_functor(fcall3atom,3);
-  fprogress8=PL_new_functor(fprogress8atom,8);
+  fcall3=PL_new_functor(fcall3atom,4);
+  fprogress8=PL_new_functor(fprogress8atom,9);
+  extra_arg=PL_record(t5);
 
   optimizer_status=OPTIMIZER_STATUS_INITIALIZED;
 
@@ -382,6 +399,7 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2) {
     return FALSE;
   }
 
+  PL_erase(extra_arg);
 
   if (! PL_is_atom(t1)) {
     return FALSE;
@@ -615,7 +633,7 @@ install_t init_lbfgs_predicates( void )
   lbfgs_parameter_init(&param);
 
 
-  PL_register_foreign("optimizer_reserve_memory",4,optimizer_initialize,0);
+  PL_register_foreign("optimizer_reserve_memory",5,optimizer_initialize,0);
   PL_register_foreign("optimizer_run",2,optimizer_run,0);
   PL_register_foreign("optimizer_free_memory",0,optimizer_finalize,0);
 

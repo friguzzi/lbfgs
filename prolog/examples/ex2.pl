@@ -21,7 +21,7 @@
 
 
 % This is the call back function which evaluates F and the gradient of F
-evaluate(FX,_N,_Step) :-
+evaluate(FX,_N,_Step,_) :-
 	optimizer_get_x(0,X0),
 	optimizer_get_x(1,X1),
 
@@ -35,7 +35,7 @@ evaluate(FX,_N,_Step) :-
 % This is the call back function which is invoked to report the progress
 % if the last argument is set to anywhting else than 0, the optimizer will
 % stop right now
-progress(FX,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
+progress(FX,X_Norm,G_Norm,Step,_N,Iteration,Ls,0,_) :-
 	optimizer_get_x(0,X0),
 	optimizer_get_x(1,X1),
 	format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,X0,X1,FX,X_Norm,G_Norm,Step,Ls]).
