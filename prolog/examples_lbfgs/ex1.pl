@@ -16,6 +16,7 @@
 %
 %  You should have received a copy of the GNU General Public License
 %  along with YAP-LBFGS.  If not, see <http://www.gnu.org/licenses/>.
+:- module(ex1,[demo/0,demo/2]).
 
 :- use_module(library(lbfgs)).
 
@@ -37,8 +38,11 @@ progress(Env,FX,X_Norm,G_Norm,Step,_N,Iteration,Ls,0,_) :-
 
 
 demo :-
+	demo(_Sol,_BestF).
+
+demo(BestX0,BestF):-
 	format('Optimizing the function f(x0) = sin(x0)~n',[]),
-	optimizer_initialize(1,evaluate,progress,Env),
+	optimizer_initialize(1,ex1,evaluate,progress,[],Env),
 
 
 	StartX is 3.95801,% random_float*10,

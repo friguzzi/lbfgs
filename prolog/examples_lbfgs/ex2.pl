@@ -16,6 +16,7 @@
 %
 %  You should have received a copy of the GNU General Public License
 %  along with YAP-LBFGS.  If not, see <http://www.gnu.org/licenses/>.
+:- module(ex2,[demo/0,demo/3]).
 
 :- use_module(library(lbfgs)).
 
@@ -43,8 +44,11 @@ progress(Env,FX,X_Norm,G_Norm,Step,_N,Iteration,Ls,0,_) :-
 
 
 demo :-
+	demo(_X0,_X1,_F).
+
+demo(BestX0,BestX1,BestF):-
 	format('Optimizing the function f(x0,x1) = (x0-2)^2 + (x1-1)^2~n',[]),
-	optimizer_initialize(2,evaluate,progress,Env),
+	optimizer_initialize(2,ex2,evaluate,progress,[],Env),
 
 
 	StartX0 is random_float*1000-500,
