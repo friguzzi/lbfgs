@@ -60,32 +60,24 @@ static lbfgsfloatval_t evaluate(
   term_t stepterm=PL_new_term_ref();
   term_t var=PL_new_term_ref();
   double floatres;
-  int result,intres;
-//  YAP_Int s1;
+  int result,intres,ret;
 
-//  YAP_Term t[3];
-
-//  t[0] = YAP_MkVarTerm();
-//  t[1] = YAP_MkIntTerm(n);
-//  t[2] = YAP_MkFloatTerm(step);
-  
-//  call = YAP_MkApplTerm(fcall3, 3, t);
   PL_put_variable(var);
-  PL_put_integer(nterm,env->n);
-  PL_put_float(stepterm,step);
+  ret=PL_put_integer(nterm,env->n);
+  RETURN_IF_FAIL
+  ret=PL_put_float(stepterm,step);
+  RETURN_IF_FAIL
   term_t extra_arg_term=PL_new_term_ref();
 
   PL_recorded(env->extra_arg,extra_arg_term);
-  int ret=PL_put_pointer(env_term,(void *) env);
+  ret=PL_put_pointer(env_term,(void *) env);
   RETURN_IF_FAIL
-//  PL_put_term_from_chars(extra_arg,REP_UTF8,(size_t)-1,"plunit_bongard");
-  PL_cons_functor(call,env->fcall3,env_term,var,nterm,stepterm,extra_arg_term);
+  ret=PL_cons_functor(call,env->fcall3,env_term,var,nterm,stepterm,extra_arg_term);
+  RETURN_IF_FAIL
   env->g=g_tmp;  
 
-//  s1 = YAP_InitSlot(call);
   env->optimizer_status=OPTIMIZER_STATUS_CB_EVAL;
   result=PL_call(call,env->module);
-//  result=YAP_CallProlog(call);
   env->optimizer_status=OPTIMIZER_STATUS_RUNNING;
 
   if (result==FALSE) {
@@ -99,13 +91,15 @@ static lbfgsfloatval_t evaluate(
 //  a1 = YAP_ArgOfTerm(1,call);
   if (PL_is_float(var)) {
 //      YAP_ShutdownGoal( TRUE );
-      PL_get_float(var,&floatres);
+      ret=PL_get_float(var,&floatres);
+      RETURN_IF_FAIL
 //  printf("float %f\n",floatres);
       return (lbfgsfloatval_t) floatres;
   } else if (PL_is_integer(var)) {
 //    YAP_ShutdownGoal( TRUE );
 //      printf("int\n");
-      PL_get_integer(var,&intres);
+      ret=PL_get_integer(var,&intres);
+      RETURN_IF_FAIL
     return (lbfgsfloatval_t) intres;
   }
 
@@ -137,17 +131,25 @@ static int progress(
   term_t kterm=PL_new_term_ref();
   term_t lsterm=PL_new_term_ref();
   term_t var=PL_new_term_ref();
-  int result,intres;
+  int result,intres,ret;
 
-  PL_put_float(fxterm,fx);
-  PL_put_float(xnormterm,xnorm);
-  PL_put_float(gnormterm,gnorm);
-  PL_put_float(stepterm,step);
-  PL_put_integer(nterm,n);
-  PL_put_integer(kterm,k);
-  PL_put_integer(lsterm,ls);
-  PL_put_variable(var);
-  int ret=PL_put_pointer(env_term,(void *) env);
+  ret=PL_put_float(fxterm,fx);
+  RETURN_IF_FAIL
+  ret=PL_put_float(xnormterm,xnorm);
+  RETURN_IF_FAIL
+  ret=PL_put_float(gnormterm,gnorm);
+  RETURN_IF_FAIL
+  ret=PL_put_float(stepterm,step);
+  RETURN_IF_FAIL
+  ret=PL_put_integer(nterm,n);
+  RETURN_IF_FAIL
+  ret=PL_put_integer(kterm,k);
+  RETURN_IF_FAIL
+  ret=PL_put_integer(lsterm,ls);
+  RETURN_IF_FAIL
+  ret=PL_put_variable(var);
+  RETURN_IF_FAIL
+  ret=PL_put_pointer(env_term,(void *) env);
   RETURN_IF_FAIL
 
   term_t extra_arg_term=PL_new_term_ref();
@@ -159,8 +161,9 @@ static int progress(
 //  PL_put_term_from_chars(extra_arg,REP_UTF8,(size_t)-1,"plunit_bongard");
 
 
-  PL_cons_functor(call,env->fprogress8,env_term,fxterm,xnormterm,gnormterm,stepterm,
+  ret=PL_cons_functor(call,env->fprogress8,env_term,fxterm,xnormterm,gnormterm,stepterm,
   nterm,kterm,lsterm,var,extra_arg_term);
+  RETURN_IF_FAIL
 
 
   env->optimizer_status=OPTIMIZER_STATUS_CB_PROGRESS;
@@ -176,7 +179,8 @@ static int progress(
 
   if (PL_is_integer(var))
   {
-    PL_get_integer(var,&intres);
+    ret=PL_get_integer(var,&intres);
+    RETURN_IF_FAIL
     return intres;
   }
 
@@ -200,7 +204,8 @@ static foreign_t set_x_value(term_t t1,term_t t2, term_t t3) {
   }
   
   if (PL_is_integer(t2)) {
-    PL_get_integer(t2,&i);
+    ret=PL_get_integer(t2,&i);
+    RETURN_IF_FAIL
   } else {
     PL_succeed;
   }
@@ -211,10 +216,12 @@ static foreign_t set_x_value(term_t t1,term_t t2, term_t t3) {
   }
 
   if (PL_is_float(t3)) {
-    PL_get_float(t3,&xi);
+    ret=PL_get_float(t3,&xi);
+    RETURN_IF_FAIL
     env->x[i]=(lbfgsfloatval_t) xi;
   } else if (PL_is_integer(t3)) {
-    PL_get_integer(t3,&xiint);
+    ret=PL_get_integer(t3,&xiint);
+    RETURN_IF_FAIL
     env->x[i]=(lbfgsfloatval_t) xiint;
   } else {
     PL_fail;
@@ -238,7 +245,8 @@ static foreign_t get_x_value(term_t t1,term_t t2, term_t t3) {
   }
   
   if (PL_is_integer(t2)) {
-    PL_get_integer(t2,&i);
+    ret=PL_get_integer(t2,&i);
+    RETURN_IF_FAIL
   } else {
     PL_fail;
   }
@@ -247,7 +255,8 @@ static foreign_t get_x_value(term_t t1,term_t t2, term_t t3) {
     printf("ERROR: invalid index for set_x_value/2.\n");
     PL_fail;
   }
-  PL_put_float(xi,env->x[i]);
+  ret=PL_put_float(xi,env->x[i]);
+  RETURN_IF_FAIL
   return PL_unify(t3,xi);
 }
 
@@ -269,7 +278,8 @@ static foreign_t set_g_value(term_t t1,term_t t2, term_t t3) {
   }
   
   if (PL_is_integer(t2)) {
-    PL_get_integer(t2,&i);
+    ret=PL_get_integer(t2,&i);
+    RETURN_IF_FAIL
   } else {
     PL_fail;
   }
@@ -279,10 +289,12 @@ static foreign_t set_g_value(term_t t1,term_t t2, term_t t3) {
   }
 
   if (PL_is_float(t3)) {
-    PL_get_float(t3,&gi);
+    ret=PL_get_float(t3,&gi);
+    RETURN_IF_FAIL
     env->g[i]=(lbfgsfloatval_t) gi;
   } else if (PL_is_integer(t3)) {
-    PL_get_integer(t3,&giint);
+    ret=PL_get_integer(t3,&giint);
+    RETURN_IF_FAIL
     env->g[i]=(lbfgsfloatval_t) giint;
   } else {
     PL_fail;
@@ -306,7 +318,8 @@ static foreign_t get_g_value(term_t t1,term_t t2, term_t t3) {
   }
   
   if (PL_is_integer(t2)) {
-    PL_get_integer(t2,&i);
+    ret=PL_get_integer(t2,&i);
+    RETURN_IF_FAIL
   } else {
     PL_fail;
   }
@@ -314,7 +327,8 @@ static foreign_t get_g_value(term_t t1,term_t t2, term_t t3) {
   if (i<0 || i>=env->n) {
     PL_fail;
   }
-  PL_put_float(gi,env->g[i]);
+  ret=PL_put_float(gi,env->g[i]);
+  RETURN_IF_FAIL
   return PL_unify(t3,gi);
 }
 
@@ -324,12 +338,13 @@ static foreign_t optimizer_initialize(term_t t1, term_t t2, term_t t3, term_t t4
  
 //printf("LBFGSERR_ROUNDING_ERROR %d\n",LBFGSERR_ROUNDING_ERROR);
   term_t env_t;
-
+  int ret;
   if (! PL_is_integer(t1)) {
     PL_fail;
   }
 
-  PL_get_integer(t1,&temp_n);
+  ret=PL_get_integer(t1,&temp_n);
+  RETURN_IF_FAIL
 
   if (temp_n<1) {
     PL_fail;
@@ -345,12 +360,15 @@ static foreign_t optimizer_initialize(term_t t1, term_t t2, term_t t3, term_t t4
         PL_fail;
   }
   
-  PL_get_module(t2, &env->module);
+  ret=PL_get_module(t2, &env->module);
+  RETURN_IF_FAIL
   env->n=temp_n;
   atom_t fcall3atom;
   atom_t fprogress8atom;
-  PL_get_atom(t3, &fcall3atom);
-  PL_get_atom(t4, &fprogress8atom);
+  ret=PL_get_atom(t3, &fcall3atom);
+  RETURN_IF_FAIL
+  ret=PL_get_atom(t4, &fprogress8atom);
+  RETURN_IF_FAIL
   env->fcall3=PL_new_functor(fcall3atom,5);
   env->fprogress8=PL_new_functor(fprogress8atom,10);
   env->extra_arg=PL_record(t5);
@@ -358,7 +376,7 @@ static foreign_t optimizer_initialize(term_t t1, term_t t2, term_t t3, term_t t4
   env->optimizer_status=OPTIMIZER_STATUS_INITIALIZED;
 
 
-  int ret=PL_put_pointer(env_t,(void *) env);
+  ret=PL_put_pointer(env_t,(void *) env);
   RETURN_IF_FAIL
   return(PL_unify(env_t,t6));
 }
@@ -395,10 +413,14 @@ static foreign_t optimizer_run(term_t t1,term_t t2, term_t t3) {
   env->x=tmp_x;
   env->optimizer_status = OPTIMIZER_STATUS_INITIALIZED;
   
-  PL_put_float(s1,fx);
-  PL_put_integer(s2,ret);
-  PL_unify(t2,s1);
-  PL_unify(t3,s2);
+  ret=PL_put_float(s1,fx);
+  RETURN_IF_FAIL
+  ret=PL_put_integer(s2,ret);
+  RETURN_IF_FAIL
+  ret=PL_unify(t2,s1);
+  RETURN_IF_FAIL
+  ret=PL_unify(t3,s2);
+  RETURN_IF_FAIL
 
   return TRUE;
 }
@@ -447,21 +469,25 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
     return FALSE;
   }
 
-  PL_get_atom_chars(t2,&name);
+  ret=PL_get_atom_chars(t2,&name);
+  RETURN_IF_FAIL
 
   if ((strcmp(name, "m") == 0)) {
     if (! PL_is_integer(t3)) {
 	return FALSE;
     }
-    PL_get_integer(t3,&(env->param.m));
+    ret=PL_get_integer(t3,&(env->param.m));
+    RETURN_IF_FAIL
   } else if  ((strcmp(name, "epsilon") == 0)) {
     lbfgsfloatval_t v;
       
     if (PL_is_float(t3)) {
-      PL_get_float(t3,&v);
+      ret=PL_get_float(t3,&v);
+      RETURN_IF_FAIL
     } else if (PL_is_integer(t3)) {
       int vi;
-      PL_get_integer(t3,&vi);
+      ret=PL_get_integer(t3,&vi);
+      RETURN_IF_FAIL
       v=(lbfgsfloatval_t) vi;
     } else {
       return FALSE;
@@ -472,15 +498,18 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
     if (! PL_is_integer(t3)) {
 	return FALSE;
     }
-    PL_get_integer(t3,&(env->param.past));
+    ret=PL_get_integer(t3,&(env->param.past));
+    RETURN_IF_FAIL
   } else if  ((strcmp(name, "delta") == 0)) {
     lbfgsfloatval_t v;
       
     if (PL_is_float(t3)) {
-      PL_get_float(t3,&v);
+      ret=PL_get_float(t3,&v);
+      RETURN_IF_FAIL
     } else if (PL_is_integer(t3)) {
       int vi;
-      PL_get_integer(t3,&vi);
+      ret=PL_get_integer(t3,&vi);
+      RETURN_IF_FAIL
       v=(lbfgsfloatval_t) vi;
     } else {
       return FALSE;
@@ -491,25 +520,30 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
     if (! PL_is_integer(t3)) {
 	return FALSE;
     }
-    PL_get_integer(t3,&(env->param.max_iterations));
+    ret=PL_get_integer(t3,&(env->param.max_iterations));
+    RETURN_IF_FAIL
   } else if  ((strcmp(name, "linesearch") == 0)) {
     if (! PL_is_integer(t3)) {
 	return FALSE;
     }
-    PL_get_integer(t3,&(env->param.linesearch));
+    ret=PL_get_integer(t3,&(env->param.linesearch));
+    RETURN_IF_FAIL
   } else if  ((strcmp(name, "max_linesearch") == 0)) {
     if (! PL_is_integer(t3)) {
 	return FALSE;
     }
-    PL_get_integer(t3,&(env->param.max_linesearch));
+    ret=PL_get_integer(t3,&(env->param.max_linesearch));
+    RETURN_IF_FAIL
   } else if  ((strcmp(name, "min_step") == 0)) {
     lbfgsfloatval_t v;
       
     if (PL_is_float(t3)) {
-      PL_get_float(t3,&v);
+      ret=PL_get_float(t3,&v);
+      RETURN_IF_FAIL
     } else if (PL_is_integer(t3)) {
       int vi;
-      PL_get_integer(t3,&vi);
+      ret=PL_get_integer(t3,&vi);
+      RETURN_IF_FAIL
       v=(lbfgsfloatval_t) vi;
     } else {
       return FALSE;
@@ -519,10 +553,12 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
   } else if  ((strcmp(name, "max_step") == 0)) {
     lbfgsfloatval_t v;
     if (PL_is_float(t3)) {
-      PL_get_float(t3,&v);
+      ret=PL_get_float(t3,&v);
+      RETURN_IF_FAIL
     } else if (PL_is_integer(t3)) {
       int vi;
-      PL_get_integer(t3,&vi);
+      ret=PL_get_integer(t3,&vi);
+      RETURN_IF_FAIL
       v=(lbfgsfloatval_t) vi;
     } else {
       return FALSE;
@@ -532,10 +568,12 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
   } else if  ((strcmp(name, "ftol") == 0)) {
     lbfgsfloatval_t v;
     if (PL_is_float(t3)) {
-      PL_get_float(t3,&v);
+      ret=PL_get_float(t3,&v);
+      RETURN_IF_FAIL
     } else if (PL_is_integer(t3)) {
       int vi;
-      PL_get_integer(t3,&vi);
+      ret=PL_get_integer(t3,&vi);
+      RETURN_IF_FAIL
       v=(lbfgsfloatval_t) vi;
     } else {
       return FALSE;
@@ -546,10 +584,12 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
     lbfgsfloatval_t v;
       
     if (PL_is_float(t3)) {
-      PL_get_float(t3,&v);
+      ret=PL_get_float(t3,&v);
+      RETURN_IF_FAIL
     } else if (PL_is_integer(t3)) {
       int vi;
-      PL_get_integer(t3,&vi);
+      ret=PL_get_integer(t3,&vi);
+      RETURN_IF_FAIL
       v=(lbfgsfloatval_t) vi;
     } else {
       return FALSE;
@@ -560,10 +600,12 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
     lbfgsfloatval_t v;
       
     if (PL_is_float(t3)) {
-      PL_get_float(t3,&v);
+      ret=PL_get_float(t3,&v);
+      RETURN_IF_FAIL
     } else if (PL_is_integer(t3)) {
       int vi;
-      PL_get_integer(t3,&vi);
+      ret=PL_get_integer(t3,&vi);
+      RETURN_IF_FAIL
       v=(lbfgsfloatval_t) vi;
     } else {
       return FALSE;
@@ -574,10 +616,12 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
     lbfgsfloatval_t v;
       
     if (PL_is_float(t3)) {
-      PL_get_float(t3,&v);
+      ret=PL_get_float(t3,&v);
+      RETURN_IF_FAIL
     } else if (PL_is_integer(t3)) {
       int vi;
-      PL_get_integer(t3,&vi);
+      ret=PL_get_integer(t3,&vi);
+      RETURN_IF_FAIL
       v=(lbfgsfloatval_t) vi;
     } else {
       return FALSE;
@@ -588,12 +632,14 @@ static foreign_t optimizer_set_parameter(term_t t1,term_t t2, term_t t3) {
     if (! PL_is_integer(t3)) {
 	return FALSE;
     }
-    PL_get_integer(t3,&(env->param.orthantwise_start));
+    ret=PL_get_integer(t3,&(env->param.orthantwise_start));
+    RETURN_IF_FAIL
   } else if  ((strcmp(name, "orthantwise_end") == 0)) {
     if (! PL_is_integer(t3)) {
 	return FALSE;
     }
-    PL_get_integer(t3,&(env->param.orthantwise_end));
+    ret=PL_get_integer(t3,&(env->param.orthantwise_end));
+    RETURN_IF_FAIL
   } else {
       printf("ERROR: The parameter %s is unknown.\n",name);
       return FALSE;
@@ -613,52 +659,68 @@ static foreign_t optimizer_get_parameter(term_t t1, term_t t2, term_t t3) {
   if (! PL_is_atom(t2)) {
     return FALSE;
   }
-  PL_get_atom_chars(t2,&name);
+  ret=PL_get_atom_chars(t2,&name);
+  RETURN_IF_FAIL
 
   if ((strcmp(name, "m") == 0)) {
-    PL_put_integer(s2,env->param.m);
+    ret=PL_put_integer(s2,env->param.m);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "epsilon") == 0)) {
-    PL_put_float(s2,env->param.epsilon);
+    ret=PL_put_float(s2,env->param.epsilon);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "past") == 0)) {
-    PL_put_integer(s2,env->param.past);
+    ret=PL_put_integer(s2,env->param.past);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "delta") == 0)) {
-    PL_put_float(s2,env->param.delta);
+    ret=PL_put_float(s2,env->param.delta);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "max_iterations") == 0)) {
-    PL_put_integer(s2,env->param.max_iterations);
+    ret=PL_put_integer(s2,env->param.max_iterations);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "linesearch") == 0)) {
-    PL_put_integer(s2,env->param.linesearch);
+    ret=PL_put_integer(s2,env->param.linesearch);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "max_linesearch") == 0)) {
-    PL_put_integer(s2,env->param.max_linesearch);
+    ret=PL_put_integer(s2,env->param.max_linesearch);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "min_step") == 0)) {
-    PL_put_float(s2,env->param.min_step);
+    ret=PL_put_float(s2,env->param.min_step);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "max_step") == 0)) {
-    PL_put_float(s2,env->param.max_step);
+    ret=PL_put_float(s2,env->param.max_step);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "ftol") == 0)) {
-    PL_put_float(s2,env->param.ftol);
+    ret=PL_put_float(s2,env->param.ftol);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "gtol") == 0)) {
-    PL_put_float(s2,env->param.gtol);
+    ret=PL_put_float(s2,env->param.gtol);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "xtol") == 0)) {
-    PL_put_float(s2,env->param.xtol);
+    ret=PL_put_float(s2,env->param.xtol);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "orthantwise_c") == 0)) {
-    PL_put_float(s2,env->param.orthantwise_c);
+    ret=PL_put_float(s2,env->param.orthantwise_c);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "orthantwise_start") == 0)) {
-    PL_put_float(s2,env->param.orthantwise_start);
+    ret=PL_put_float(s2,env->param.orthantwise_start);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   } else if  ((strcmp(name, "orthantwise_end") == 0)) {
-    PL_put_float(s2,env->param.orthantwise_end);
+    ret=PL_put_float(s2,env->param.orthantwise_end);
+    RETURN_IF_FAIL
     return PL_unify(t3,s2);
   }
 
