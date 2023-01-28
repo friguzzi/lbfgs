@@ -34,9 +34,6 @@
 		 optimizer_parameters/1,
 		 interpret_return_value/2]).
 
-% switch on all the checks to reduce bug searching time
-% :- yap_flag(unknown,error).
-% :- style_check(single_var).
 
 
 :-use_foreign_library(foreign(swi_lbfgs),init_lbfgs_predicates).
@@ -106,26 +103,7 @@ optimizer_finalize(Env) :-
 /**
  * optimizer_parameters(+Environment) is det
  * 
- * Prints a table with the current parameters. For example
-==========================================================================================
-Type      Name               Value          Description                   
-==========================================================================================
-int       m                  6              The number of corrections to approximate the inverse hessian matrix.
-float     epsilon            1e-05          Epsilon for convergence test. 
-int       past               0              Distance for delta-based convergence test.
-float     delta              1e-05          Delta for convergence test.   
-int       max_iterations     0              The maximum number of iterations
-int       linesearch         0              The line search algorithm.    
-int       max_linesearch     40             The maximum number of trials for the line search.
-float     min_step           1e-20          The minimum step of the line search routine.
-float     max_step           1e+20          The maximum step of the line search.
-float     ftol               0.0001         A parameter to control the accuracy of the line search routine.
-float     gtol               0.9            A parameter to control the accuracy of the line search routine.
-float     xtol               1e-16          The machine precision for floating-point values.
-float     orthantwise_c      0.0            Coefficient for the L1 norm of variables
-int       orthantwise_start  0              Start index for computing the L1 norm of the variables.
-int       orthantwise_end    -1             End index for computing the L1 norm of the variables.
-==========================================================================================
+ * Prints a table with the current parameters.
  */
 optimizer_parameters(Env) :-
 	optimizer_get_parameter(Env,m,M),
@@ -171,6 +149,13 @@ optimizer_parameters(Env) :-
 print_param(Name,Value,Text,Dom) :-
 	format(user,'~w~10+~w~19+~w~15+~w~30+~n',[Dom,Name,Value,Text]).
 
+
+/**
+ * interpret_return_value(+Status,-String) is det
+ * 
+ * Given a status code returned by optimizer_run/3, it returns a descriptive string
+ */
+
 interpret_return_value(0,"LBFGS_SUCCESS"):-!.
 
 interpret_return_value(1,"LBFGS_STOP"):-!.
@@ -212,7 +197,7 @@ interpret_return_value(N,M):-
  */
 
 /**
- * optimizer_get_g(*Environment,+I,-G) is det
+ * optimizer_get_g(+Environment,+I,-G) is det
  * 
  * Get the current value for g[I] (the partial derivative of F with respect to x[I]). 
  * Only possible when the optimizer is initialized or running. 
@@ -228,13 +213,13 @@ interpret_return_value(N,M):-
  */
 
 /**
- *  optimizer_set_paramater(+Env,+Name,+Value) is det
+ * optimizer_set_parameter(+Env,+Name,+Value) is det
  * 
  *  Change parameters
  */
 
 /**
- * optimizer_get_parameter(+Env,-Name,-Value) 
+ * optimizer_get_parameter(+Env,-Name,-Value) is det
  * 
  * See current parameters
  */
