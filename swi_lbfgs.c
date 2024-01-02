@@ -388,6 +388,7 @@ static foreign_t optimizer_run(term_t t1,term_t t2, term_t t3) {
   lbfgsfloatval_t fx;
   lbfgsfloatval_t * tmp_x;
   environment *env;
+  char * status;
 
   ret=PL_get_pointer(t1,(void **)&env);
   RETURN_IF_FAIL
@@ -412,10 +413,123 @@ static foreign_t optimizer_run(term_t t1,term_t t2, term_t t3) {
   ret = lbfgs(env->n, env->x, &fx, evaluate, progress, (void *)env, &(env->param));
   env->x=tmp_x;
   env->optimizer_status = OPTIMIZER_STATUS_INITIALIZED;
-  
+  printf("LBFGS optimization terminated with status %d\n",ret);
+  switch(ret)
+  {
+    /** L-BFGS reaches convergence. */
+    case LBFGS_SUCCESS:  
+      status="LBFGS_SUCCESS"; break;
+    case LBFGS_STOP:
+      status= "LBFGS_STOP"; break;
+
+    /** The initial variables already minimize the objective function. */
+    case LBFGS_ALREADY_MINIMIZED:
+      status= "LBFGS_ALREADY_MINIMIZED"; break;
+
+    /** Unknown error. */
+    case LBFGSERR_UNKNOWNERROR:
+      status= "LBFGSERR_UNKNOWNERROR"; break;
+    /** Logic error. */
+    case LBFGSERR_LOGICERROR:
+      status= "LBFGSERR_LOGICERROR"; break;
+    /** Insufficient memory. */
+    case LBFGSERR_OUTOFMEMORY:
+      status= "LBFGSERR_OUTOFMEMORY"; break;
+    /** The minimization process has been canceled. */
+    case LBFGSERR_CANCELED:
+      status= "LBFGSERR_CANCELED"; break;
+    /** Invalid number of variables specified. */
+    case LBFGSERR_INVALID_N:
+      status= "LBFGSERR_INVALID_N"; break;
+    /** Invalid number of variables (for SSE) specified. */
+    case LBFGSERR_INVALID_N_SSE:
+      status= "LBFGSERR_INVALID_N_SSE"; break;
+    /** The array x must be aligned to 16 (for SSE). */
+    case LBFGSERR_INVALID_X_SSE:
+      status= "LBFGSERR_INVALID_X_SSE"; break;
+    /** Invalid parameter lbfgs_parameter_t::epsilon specified. */
+    case LBFGSERR_INVALID_EPSILON:
+      status= "LBFGSERR_INVALID_EPSILON"; break;
+    /** Invalid parameter lbfgs_parameter_t::past specified. */
+    case LBFGSERR_INVALID_TESTPERIOD:
+      status= "LBFGSERR_INVALID_TESTPERIOD"; break;
+    /** Invalid parameter lbfgs_parameter_t::delta specified. */
+    case LBFGSERR_INVALID_DELTA:
+      status= "LBFGSERR_INVALID_DELTA"; break;
+    /** Invalid parameter lbfgs_parameter_t::linesearch specified. */
+    case LBFGSERR_INVALID_LINESEARCH:
+      status= "LBFGSERR_INVALID_LINESEARCH"; break;
+    /** Invalid parameter lbfgs_parameter_t::max_step specified. */
+    case LBFGSERR_INVALID_MINSTEP:
+      status= "LBFGSERR_INVALID_MINSTEP"; break;
+    /** Invalid parameter lbfgs_parameter_t::max_step specified. */
+    case LBFGSERR_INVALID_MAXSTEP:
+      status= "LBFGSERR_INVALID_MAXSTEP"; break;
+    /** Invalid parameter lbfgs_parameter_t::ftol specified. */
+    case LBFGSERR_INVALID_FTOL:
+      status= "LBFGSERR_INVALID_FTOL"; break;
+    /** Invalid parameter lbfgs_parameter_t::wolfe specified. */
+    case LBFGSERR_INVALID_WOLFE:
+      status= "LBFGSERR_INVALID_WOLFE"; break;
+    /** Invalid parameter lbfgs_parameter_t::gtol specified. */
+    case LBFGSERR_INVALID_GTOL:
+      status= "LBFGSERR_INVALID_GTOL"; break;
+    /** Invalid parameter lbfgs_parameter_t::xtol specified. */
+    case LBFGSERR_INVALID_XTOL:
+      status= "LBFGSERR_INVALID_XTOL"; break;
+    /** Invalid parameter lbfgs_parameter_t::max_linesearch specified. */
+    case LBFGSERR_INVALID_MAXLINESEARCH:
+      status= "LBFGSERR_INVALID_MAXLINESEARCH"; break;
+    /** Invalid parameter lbfgs_parameter_t::orthantwise_c specified. */
+    case LBFGSERR_INVALID_ORTHANTWISE:
+      status= "LBFGSERR_INVALID_ORTHANTWISE"; break;
+    /** Invalid parameter lbfgs_parameter_t::orthantwise_start specified. */
+    case LBFGSERR_INVALID_ORTHANTWISE_START:
+      status= "LBFGSERR_INVALID_ORTHANTWISE_START"; break;
+    /** Invalid parameter lbfgs_parameter_t::orthantwise_end specified. */
+    case LBFGSERR_INVALID_ORTHANTWISE_END:
+      status= "LBFGSERR_INVALID_ORTHANTWISE_END"; break;
+    /** The line-search step went out of the interval of uncertainty. */
+    case LBFGSERR_OUTOFINTERVAL:
+      status= "LBFGSERR_OUTOFINTERVAL"; break;
+    /** A logic error occurred; alternatively, the interval of uncertainty
+        became too small. */
+    case LBFGSERR_INCORRECT_TMINMAX:
+      status= "LBFGSERR_INCORRECT_TMINMAX"; break;
+    /** A rounding error occurred; alternatively, no line-search step
+        satisfies the sufficient decrease and curvature conditions. */
+    case LBFGSERR_ROUNDING_ERROR:
+      status= "LBFGSERR_ROUNDING_ERROR"; break;
+    /** The line-search step became smaller than lbfgs_parameter_t::min_step. */
+    case LBFGSERR_MINIMUMSTEP:
+      status= "LBFGSERR_MINIMUMSTEP"; break;
+    /** The line-search step became larger than lbfgs_parameter_t::max_step. */
+    case LBFGSERR_MAXIMUMSTEP:
+      status= "LBFGSERR_MAXIMUMSTEP"; break;
+    /** The line-search routine reaches the maximum number of evaluations. */
+    case LBFGSERR_MAXIMUMLINESEARCH:
+      status= "LBFGSERR_MAXIMUMLINESEARCH"; break;
+    /** The algorithm routine reaches the maximum number of iterations. */
+    case LBFGSERR_MAXIMUMITERATION:
+      status= "LBFGSERR_MAXIMUMITERATION"; break;
+    /** Relative width of the interval of uncertainty is at most
+        lbfgs_parameter_t::xtol. */
+    case LBFGSERR_WIDTHTOOSMALL:
+      status= "LBFGSERR_WIDTHTOOSMALL"; break;
+    /** A logic error (negative line-search step) occurred. */
+    case LBFGSERR_INVALIDPARAMETERS:
+      status= "LBFGSERR_INVALIDPARAMETERS"; break;
+    /** The current search direction increases the objective function value. */
+    case LBFGSERR_INCREASEGRADIENT:
+      status= "LBFGSERR_INCREASEGRADIENT"; break;
+    default:
+      status= "UNKNOWN"; break;
+  }
+
+
   ret=PL_put_float(s1,fx);
   RETURN_IF_FAIL
-  ret=PL_put_integer(s2,ret);
+  ret=PL_put_atom_chars(s2,status);
   RETURN_IF_FAIL
   ret=PL_unify(t2,s1);
   RETURN_IF_FAIL
