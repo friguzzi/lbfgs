@@ -413,7 +413,6 @@ static foreign_t optimizer_run(term_t t1,term_t t2, term_t t3) {
   ret = lbfgs(env->n, env->x, &fx, evaluate, progress, (void *)env, &(env->param));
   env->x=tmp_x;
   env->optimizer_status = OPTIMIZER_STATUS_INITIALIZED;
-  printf("LBFGS optimization terminated with status %d\n",ret);
   switch(ret)
   {
     /** L-BFGS reaches convergence. */
