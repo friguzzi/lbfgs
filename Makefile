@@ -30,7 +30,7 @@ lbfgs.o: $(srcdir)/liblbfgs-1.10/lib/lbfgs.c
 
 swi_lbfgs.$(SOEXT): swi_lbfgs.o lbfgs.o
 	if [[ $(SWIARCH) ==  *darwin* ]] ; then \
-  $(CC) -export-dynamic $(LDFLAGSMAC) -o swi_lbfgs.$(SOEXT) swi_lbfgs.o lbfgs.o ; \
+  $(CC) $(LDFLAGSMAC) -o swi_lbfgs.$(SOEXT) swi_lbfgs.o lbfgs.o ; \
   else gcc -shared -export-dynamic $(LDFLAGS) -o swi_lbfgs.$(SOEXT) swi_lbfgs.o lbfgs.o ; \
   fi
 
